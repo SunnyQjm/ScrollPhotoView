@@ -52,6 +52,13 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
         return matrixValue[Matrix.MSCALE_X]
     }
 
+    interface OnZoomImageViewClickListener{
+        fun onClick(e: MotionEvent?)
+
+        fun onDoubleTap(e: MotionEvent?)
+    }
+
+    var listener: OnZoomImageViewClickListener? = null
 
     private fun initView() {
         mGestureDetector = GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -59,6 +66,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
              * 检测单击
              */
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                listener?.onClick(e)
                 return true
             }
 
@@ -66,6 +74,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
              * 双击放大放小
              */
             override fun onDoubleTap(e: MotionEvent?): Boolean {
+                listener?.onDoubleTap(e)
                 return true
             }
         })

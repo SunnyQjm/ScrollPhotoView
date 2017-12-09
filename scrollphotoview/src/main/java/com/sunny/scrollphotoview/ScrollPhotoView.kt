@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -24,17 +25,30 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
             field = value
             adapter?.imgLoader = value
         }
+
+    var onScrollPhotoViewClickListenr: OnScrollPhotoViewClickListener? = null
+
     init {
         initView()
     }
 
     private fun initView() {
         adapter = MyAdapter(context, imgLoader = imgLoader)
+        adapter?.listener = object : ZoomImageView.OnZoomImageViewClickListener{
+            override fun onClick(e: MotionEvent?) {
+                onScrollPhotoViewClickListenr?.onClick(e)
+            }
+
+            override fun onDoubleTap(e: MotionEvent?) {
+                onScrollPhotoViewClickListenr?.onDoubleTap(e)
+            }
+        }
         viewPager = ViewPager(context)
         viewPager?.adapter = adapter
         viewPager?.offscreenPageLimit = 3
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         addView(viewPager, layoutParams)
+
 
     }
 
@@ -47,14 +61,14 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
                     private val urls: MutableList<String> = mutableListOf(),
                     var imgLoader: ((url: String, view: ImageView) -> Unit)?) : PagerAdapter() {
 
-        private val images: MutableList<ImageView> = mutableListOf()
+        private val images: MutableList<ZoomImageView> = mutableListOf()
 
         init {
             for (url in urls) {
                 images.add(ZoomImageView(context))
             }
         }
-
+        var listener: ZoomImageView.OnZoomImageViewClickListener? = null
         fun addUrls(urls: Array<String>) {
             urls.forEach {
                 this.urls.add(it)
@@ -77,6 +91,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
                     ViewGroup.LayoutParams.MATCH_PARENT)
             if (images[position].parent != container)
                 container?.addView(images[position], layoutParams)
+            images[position].listener = this.listener
             return images[position]
         }
 
@@ -84,6 +99,15 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
             println("setPrimaryItem")
             imgLoader?.invoke(urls[position], images[position])
         }
+    }
+
+    //////////////////////////////////////////
+    ////////// interface
+    //////////////////////////////////////////
+    interface OnScrollPhotoViewClickListener{
+        fun onClick(e: MotionEvent?)
+
+        fun onDoubleTap(e: MotionEvent?)
     }
 
 }

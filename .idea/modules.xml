@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CustomWeidget.iml" filepath="$PROJECT_DIR$/CustomWeidget.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/demo.iml" filepath="$PROJECT_DIR$/demo/demo.iml" />
       <module fileurl="file://$PROJECT_DIR$/scrollphotoview/scrollphotoview.iml" filepath="$PROJECT_DIR$/scrollphotoview/scrollphotoview.iml" />
     </modules>
   </component>
