@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import com.bumptech.glide.Glide
 
 /**
  * Created by sunny on 17-12-8.
@@ -21,7 +20,10 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     private var adapter: MyAdapter? = null
 
     var imgLoader: ((url: String, view: ImageView) -> Unit)? = null
-
+        set(value) {
+            field = value
+            adapter?.imgLoader = value
+        }
     init {
         initView()
     }
