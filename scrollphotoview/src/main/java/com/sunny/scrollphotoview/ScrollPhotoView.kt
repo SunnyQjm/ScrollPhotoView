@@ -16,15 +16,18 @@ import com.bumptech.glide.Glide
 class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null
                                                 , defStyleAttr: Int = 0)
     : RelativeLayout(context, attrs, defStyleAttr) {
+
     private var viewPager: ViewPager? = null
     private var adapter: MyAdapter? = null
+
+    var imgLoader: ((url: String, view: ImageView) -> Unit)? = null
 
     init {
         initView()
     }
 
     private fun initView() {
-        adapter = MyAdapter(context)
+        adapter = MyAdapter(context, imgLoader = imgLoader)
         viewPager = ViewPager(context)
         viewPager?.adapter = adapter
         viewPager?.offscreenPageLimit = 3
@@ -39,7 +42,8 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     class MyAdapter(private val context: Context,
-                    private val urls: MutableList<String> = mutableListOf()) : PagerAdapter() {
+                    private val urls: MutableList<String> = mutableListOf(),
+                    var imgLoader: ((url: String, view: ImageView) -> Unit)?) : PagerAdapter() {
 
         private val images: MutableList<ImageView> = mutableListOf()
 
@@ -76,9 +80,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
 
         override fun setPrimaryItem(container: ViewGroup?, position: Int, `object`: Any?) {
             println("setPrimaryItem")
-            Glide.with(context)
-                    .load(urls[position])
-                    .into(images[position])
+            imgLoader?.invoke(urls[position], images[position])
         }
     }
 
