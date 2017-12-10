@@ -6,15 +6,19 @@
 * 提供单击和双击回调（双击时图片会回到初始大小）
 
 > ### 使用
-Add it in your root build.gradle at the end of repositories:
+
+* step 1: Add it in your root build.gradle at the end of repositories:
+	```gradle
 	allprojects {
 		repositories {
 			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
-Step 2. Add the dependency
+	```
+* Step 2. Add the dependency
+	``gradle
 	dependencies {
 	        compile 'com.github.SunnyQjm:ScrollPhotoView:v1.0.3'
 	}
-Share this release:
+	```
