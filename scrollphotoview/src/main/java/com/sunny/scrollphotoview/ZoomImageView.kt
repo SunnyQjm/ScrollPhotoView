@@ -25,6 +25,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     private val scaleMatrix = Matrix()
     private var mGestureDetector: GestureDetectorCompat? = null
     private var mScaleGestureDetector: ScaleGestureDetector? = null
+    private val dragMatrix = Matrix()
 
     //第一次布局完成后获取图片的宽搞，调整图片等
     private var first = true
@@ -44,15 +45,20 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     private val matrixValue = FloatArray(9)
 
+    private var mode = 0
+    private val MODE_INIT = 0x01
+    private val MODE_ZOOM = 0x02
+    private val MODE_DRAG = 0x04
+
     /**
      * 返回的Scale是相对于初始时候的Scale
      */
-    private fun getScale(): Float{
+    private fun getScale(): Float {
         scaleMatrix.getValues(matrixValue)
         return matrixValue[Matrix.MSCALE_X]
     }
 
-    interface OnZoomImageViewClickListener{
+    interface OnZoomImageViewClickListener {
         fun onClick(e: MotionEvent?)
 
         fun onDoubleTap(e: MotionEvent?)
@@ -61,6 +67,8 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     var listener: OnZoomImageViewClickListener? = null
 
     private fun initView() {
+        mode = mode or MODE_INIT
+        println("initMode: $mode")
         mGestureDetector = GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
             /**
              * 检测单击
@@ -70,12 +78,43 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
                 return true
             }
 
+            override fun onDown(e: MotionEvent?): Boolean {
+                if (mode and MODE_ZOOM > 0)
+                    parent?.requestDisallowInterceptTouchEvent(true)
+                else
+                    parent?.requestDisallowInterceptTouchEvent(false)
+                return super.onDown(e)
+            }
+
             /**
              * 双击放大放小
              */
             override fun onDoubleTap(e: MotionEvent?): Boolean {
                 listener?.onDoubleTap(e)
+                //大小恢复到初始状态
+                scaleMatrix.postScale(initScale, initScale)
+                checkBorderAndCenterWhenScale(scaleMatrix)
+                //清除缩放状态
+                mode = mode and MODE_ZOOM.inv()
+                imageMatrix = scaleMatrix
                 return true
+            }
+
+            /**
+             * 检测滚动事件，用于拖拽图片
+             */
+            override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                println("mode: $mode")
+
+                //处于缩放状态，并且可拖拽
+                if ((mode and MODE_DRAG > 0) && (mode and MODE_ZOOM > 0)) {
+                    println("drag: ($distanceX, $distanceY)")
+                    scaleMatrix.postTranslate(-distanceX, -distanceY)
+                    checkBorderAndCenterWhenScale(scaleMatrix)
+                    imageMatrix = scaleMatrix
+                    return true
+                }
+                return super.onScroll(e1, e2, distanceX, distanceY)
             }
         })
 
@@ -89,20 +128,25 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
 
             override fun onScale(detector: ScaleGestureDetector?): Boolean {
                 val scale = getScale()
+                //如果图片大小超过ImageView，认为处于缩放状态
+                mode = if (scale - initScale > 0.1f)
+                    mode or MODE_ZOOM
+                else
+                    mode and MODE_ZOOM.inv()
                 var scaleFactor = mScaleGestureDetector!!.scaleFactor
 
                 if (drawable == null || detector == null) {
                     return true
                 }
 
-                if((scale < initScale * SCALE_MAX && scaleFactor > 1.0f)
-                        || (scale > initScale && scaleFactor < 1.0f)){
-                    if(scaleFactor * scale < initScale)
+                if ((scale < initScale * SCALE_MAX && scaleFactor > 1.0f)
+                        || (scale > initScale && scaleFactor < 1.0f)) {
+                    if (scaleFactor * scale < initScale)
                         scaleFactor = initScale / scale
-                    if(scale * scale > SCALE_MAX)
-                        scaleFactor = SCALE_MAX / scale
+                    if (scaleFactor * scale > initScale * SCALE_MAX)
+                        scaleFactor = initScale * SCALE_MAX / scale
                     scaleMatrix.postScale(scaleFactor, scaleFactor, detector.focusX, detector.focusY)
-                    checkBorderAndCenterWhenScale()
+                    checkBorderAndCenterWhenScale(scaleMatrix)
                     imageMatrix = scaleMatrix
                 }
                 return true
@@ -128,9 +172,9 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     override fun onGlobalLayout() {
-        if(!first)
+        if (!first)
             return
-        if(drawable == null)
+        if (drawable == null)
             return
         first = false
 
@@ -140,54 +184,65 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
 
         var scale = 1.0f
         //如果图片的宽度大于ImageView的宽度，但是图片的高不是
-        if(imgWidth > width && imgHeight <= height){
+        if (imgWidth > width && imgHeight <= height) {
             scale = (width * 1.0 / imgWidth).toFloat()
         }
 
-        if(imgWidth <= width && imgHeight > height){
+        if (imgWidth <= width && imgHeight > height) {
             scale = (height * 1.0 / imgHeight).toFloat()
         }
         //如果图片的宽高都大于ImageView，按比例缩小
-        if(imgWidth > width && imgHeight > height)
-            scale = Math.min(imgWidth * 1.0 / width, imgHeight * 1.0 / height).toFloat()
+        if (imgWidth > width && imgHeight > height)
+            scale = Math.min(width * 1.0 / imgWidth, height * 1.0 / imgHeight).toFloat()
 
+        //如果宽高都小于ImageView
+        if (imgWidth < width && imgHeight < height)
+            scale = Math.min(width * 1.0 / imgWidth, height * 1.0 / imgHeight).toFloat()
         //将图片移至屏幕中心
-        scaleMatrix.postTranslate(((width - imgWidth) / 2.0).toFloat(), (height - imgHeight).toFloat())
+        scaleMatrix.postTranslate(((width - imgWidth) / 2.0).toFloat(), ((height - imgHeight) / 2.0).toFloat())
         scaleMatrix.postScale(scale, scale, (width / 2.0).toFloat(), (height / 2.0).toFloat())
         imageMatrix = scaleMatrix
         initScale = scale
+        println("initScale: $initScale")
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        if(mGestureDetector?.onTouchEvent(event) == true){
+        println("pointerCount: ${event?.pointerCount}")
+        mode = if (event?.pointerCount ?: 0 <= 1)
+            mode or MODE_DRAG
+        else
+            mode and MODE_DRAG.inv()
+        if (mGestureDetector?.onTouchEvent(event) == true) {
             return true
         }
         return mScaleGestureDetector!!.onTouchEvent(event)        //缩放监听
     }
 
-    private fun checkBorderAndCenterWhenScale(){
-        val matrix = scaleMatrix
+    /**
+     * 在缩放的时候检测图片边界
+     */
+    private fun checkBorderAndCenterWhenScale(mMatrix: Matrix) {
         val rectF = RectF()
 
-        if(drawable != null) {
+        if (drawable != null) {
             rectF.set(0f, 0f, drawable.intrinsicWidth.toFloat()
                     , drawable.intrinsicHeight.toFloat())
-            matrix.mapRect(rectF)
+            mMatrix.mapRect(rectF)
         }
         var deltaX = 0f
         var deltaY = 0f
 
         //如果宽或高大于屏幕，则控制范围
-        if(rectF.width() >= width){
-            if(rectF.left > 0)
+        if (rectF.width() >= width) {
+            if (rectF.left > 0)
                 deltaX = -rectF.left
-            if(rectF.right < width)
+            if (rectF.right < width)
                 deltaX = width - rectF.right
         }
-        if(rectF.height() >= height){
-            if(rectF.top > 0)
-                deltaY = - rectF.top
-            if(rectF.bottom < height)
+        if (rectF.height() >= height) {
+            if (rectF.top > 0)
+                deltaY = -rectF.top
+            if (rectF.bottom < height)
                 deltaY = height - rectF.bottom
         }
 
@@ -198,7 +253,8 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
         if (rectF.height() < height) {
             deltaY = height * 0.5f - rectF.bottom + 0.5f * rectF.height();
         }
-        scaleMatrix.postTranslate(deltaX, deltaY)
+
+        mMatrix.postTranslate(deltaX, deltaY)
     }
 
     override fun performClick(): Boolean {

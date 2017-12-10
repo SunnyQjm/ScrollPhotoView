@@ -26,7 +26,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
             adapter?.imgLoader = value
         }
 
-    var onScrollPhotoViewClickListenr: OnScrollPhotoViewClickListener? = null
+    var onScrollPhotoViewClickListener: OnScrollPhotoViewClickListener? = null
 
     init {
         initView()
@@ -34,13 +34,13 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
 
     private fun initView() {
         adapter = MyAdapter(context, imgLoader = imgLoader)
-        adapter?.listener = object : ZoomImageView.OnZoomImageViewClickListener{
+        adapter?.listener = object : ZoomImageView.OnZoomImageViewClickListener {
             override fun onClick(e: MotionEvent?) {
-                onScrollPhotoViewClickListenr?.onClick(e)
+                onScrollPhotoViewClickListener?.onClick(e)
             }
 
             override fun onDoubleTap(e: MotionEvent?) {
-                onScrollPhotoViewClickListenr?.onDoubleTap(e)
+                onScrollPhotoViewClickListener?.onDoubleTap(e)
             }
         }
         viewPager = ViewPager(context)
@@ -104,6 +104,10 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     //////////////////////////////////////////
     ////////// interface
     //////////////////////////////////////////
+
+    fun setCurrentItem(position: Int){
+        viewPager?.currentItem = position
+    }
     interface OnScrollPhotoViewClickListener{
         fun onClick(e: MotionEvent?)
 
