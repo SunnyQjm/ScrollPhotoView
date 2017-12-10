@@ -17,7 +17,7 @@
 	}
 	```
 * Step 2. Add the dependency
-	``gradle
+	```gradle
 	dependencies {
 	        compile 'com.github.SunnyQjm:ScrollPhotoView:v1.0.3'
 	}
