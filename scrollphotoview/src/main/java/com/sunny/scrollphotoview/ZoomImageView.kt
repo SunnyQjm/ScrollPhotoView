@@ -91,8 +91,9 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
              */
             override fun onDoubleTap(e: MotionEvent?): Boolean {
                 listener?.onDoubleTap(e)
+                val targetScale = (initScale * 1.0 / getScale()).toFloat()
                 //大小恢复到初始状态
-                scaleMatrix.postScale(initScale, initScale)
+                scaleMatrix.postScale(targetScale, targetScale)
                 checkBorderAndCenterWhenScale(scaleMatrix)
                 //清除缩放状态
                 mode = mode and MODE_ZOOM.inv()
