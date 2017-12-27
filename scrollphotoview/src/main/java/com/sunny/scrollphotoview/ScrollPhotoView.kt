@@ -60,7 +60,6 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     class MyAdapter(private val context: Context,
                     private val urls: MutableList<String> = mutableListOf(),
                     var imgLoader: ((url: String, view: ImageView) -> Unit)?) : PagerAdapter() {
-
         private val images: MutableList<ZoomImageView> = mutableListOf()
 
         init {
@@ -76,26 +75,26 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
             }
         }
 
-        override fun isViewFromObject(view: View?, `object`: Any?) = view == `object`
+        override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
 
         override fun getCount() = urls.size
 
-        override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
+        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             println("destroyItem")
-            container?.removeView(images[position])
+            container.removeView(images[position])
         }
 
-        override fun instantiateItem(container: ViewGroup?, position: Int): Any {
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
             println("instantiateItem")
             val layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT)
             if (images[position].parent != container)
-                container?.addView(images[position], layoutParams)
+                container.addView(images[position], layoutParams)
             images[position].listener = this.listener
             return images[position]
         }
 
-        override fun setPrimaryItem(container: ViewGroup?, position: Int, `object`: Any?) {
+        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
             println("setPrimaryItem")
             imgLoader?.invoke(urls[position], images[position])
         }

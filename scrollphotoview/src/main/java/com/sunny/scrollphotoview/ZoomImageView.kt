@@ -25,9 +25,8 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     private val scaleMatrix = Matrix()
     private var mGestureDetector: GestureDetectorCompat? = null
     private var mScaleGestureDetector: ScaleGestureDetector? = null
-    private val dragMatrix = Matrix()
 
-    //第一次布局完成后获取图片的宽搞，调整图片等
+    //第一次布局完成后获取图片的宽高，调整图片等
     private var first = true
 
     /**
@@ -49,6 +48,32 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     private val MODE_INIT = 0x01
     private val MODE_ZOOM = 0x02
     private val MODE_DRAG = 0x04
+
+    /**
+     * 是否允许缩放状态下双击恢复
+     */
+    var enableDoubleClickToRestore = true
+
+    /**
+     * 是否允许在原始状态下双击放大
+     */
+    var enableDoubleClickToScale = true
+
+    /**
+     * 原始状态下双击放大的倍数
+     */
+    var doubleClickFactor = 2f
+        set(value) {                    //保证这个倍数大于1
+            field = if(value <= 1)
+                1f
+            else
+                value
+        }
+
+    /**
+     * 拖动阻尼，越大则实际移动距离/手指移动距离越大
+     */
+    var dragDamping = 1.2f
 
     /**
      * 返回的Scale是相对于初始时候的Scale
@@ -89,15 +114,23 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
             /**
              * 双击放大放小
              */
-            override fun onDoubleTap(e: MotionEvent?): Boolean {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
                 listener?.onDoubleTap(e)
-                val targetScale = (initScale * 1.0 / getScale()).toFloat()
-                //大小恢复到初始状态
-                scaleMatrix.postScale(targetScale, targetScale)
-                checkBorderAndCenterWhenScale(scaleMatrix)
-                //清除缩放状态
-                mode = mode and MODE_ZOOM.inv()
-                imageMatrix = scaleMatrix
+                if((mode and MODE_ZOOM) == 0 && enableDoubleClickToRestore){  //处于初始状态，则放大1.5倍
+                    scaleMatrix.postScale(doubleClickFactor, doubleClickFactor, e.x,e.y)
+                    checkBorderAndCenterWhenScale(scaleMatrix)
+                    imageMatrix = scaleMatrix
+                    //切换到缩放状态
+                    mode = mode or MODE_ZOOM
+                } else if(enableDoubleClickToScale){        //处于放大状态，则回复到原大小
+                    val targetScale = (initScale * 1.0 / getScale()).toFloat()
+                    //大小恢复到初始状态
+                    scaleMatrix.postScale(targetScale, targetScale)
+                    checkBorderAndCenterWhenScale(scaleMatrix)
+                    //清除缩放状态
+                    mode = mode and MODE_ZOOM.inv()
+                    imageMatrix = scaleMatrix
+                }
                 return true
             }
 
@@ -110,7 +143,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
                 //处于缩放状态，并且可拖拽
                 if ((mode and MODE_DRAG > 0) && (mode and MODE_ZOOM > 0)) {
                     println("drag: ($distanceX, $distanceY)")
-                    scaleMatrix.postTranslate(-distanceX, -distanceY)
+                    scaleMatrix.postTranslate(-distanceX * dragDamping, -distanceY * dragDamping)
                     checkBorderAndCenterWhenScale(scaleMatrix)
                     imageMatrix = scaleMatrix
                     return true
@@ -261,5 +294,6 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     override fun performClick(): Boolean {
         return super.performClick()
     }
+
 
 }
