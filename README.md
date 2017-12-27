@@ -25,14 +25,15 @@
 	}
 	```
 
-* Step 3 : 在布局中使用：
-        ```xml
-	<com.sunny.scrollphotoview.ScrollPhotoView
-		android:id="@+id/spv"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent">
-    	</com.sunny.scrollphotoview.ScrollPhotoView>
-	```
+* Step 3 : 在布局中使用
+    ```xml
+    <com.sunny.scrollphotoview.ScrollPhotoView
+	    android:id="@+id/spv"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+    </com.sunny.scrollphotoview.ScrollPhotoView>
+    ```
+    
 * Step 4 : 在代码中设置
 	* 设置显示的图片集合（传入一个string数组，可以是url，也可以是图片路径，都在下面的回调中自行处理）
 	    ```java
