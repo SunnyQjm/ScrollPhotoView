@@ -5,6 +5,8 @@
 * 图片加载是会自适应大小和位置
 * 提供单击和双击回调（双击时图片会回到初始大小）
 
+> ### 演示
+![演示](https://github.com/SunnyQjm/ScrollPhotoView/blob/master/presentatin.gif?raw=true)
 > ### 使用
 
 * step 1: Add it in your root build.gradle at the end of repositories:
