@@ -35,7 +35,7 @@
 	```
 * Step 4 : 在代码中设置
 	* 设置显示的图片集合（传入一个string数组，可以是url，也可以是图片路径，都在下面的回调中自行处理）
-	    ```kotlin
+	    ```java
 	    spv.setUrls(
 			arrayOf("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1514351983845&di=3eb9096b6c38dfa82d14c26a65ea032f&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0d338744ebf81a4cb91b80f5dc2a6059252da6e5.jpg",
 				"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1514351983844&di=a7c7ac553b3e1552c77f168f9ff792c1&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F314e251f95cad1c88870b61a743e6709c83d51c7.jpg",
@@ -43,7 +43,7 @@
 		)
 	    ```
 	* 设置回调加载（必须设置，建议用Glide来加载，可加载网络图片，本地图片，gif等）
-	    ```kotlin
+	    ```java
 	    spv.imgLoader = {
                 url, view ->
                 Glide.with(this)
@@ -52,7 +52,7 @@
             }
 	    ```
 	* 设置点击回调，支持单击和双击
-	    ```kotlin
+	    ```java
 	    spv.onScrollPhotoViewClickListener = object : ScrollPhotoView.OnScrollPhotoViewClickListener{
                 override fun onDoubleTap(e: MotionEvent?) {
                 }
