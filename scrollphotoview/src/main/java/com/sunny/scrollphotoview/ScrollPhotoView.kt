@@ -104,6 +104,8 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     ////////// interface
     //////////////////////////////////////////
 
+    fun getCurPosition() = viewPager?.currentItem
+
     fun setCurrentItem(position: Int){
         viewPager?.currentItem = position
     }
