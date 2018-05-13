@@ -27,6 +27,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
         }
 
     var onScrollPhotoViewClickListener: OnScrollPhotoViewClickListener? = null
+    var onPageChangeListener : OnPageChangeListener?= null
 
     init {
         initView()
@@ -46,6 +47,22 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
         viewPager = ViewPager(context)
         viewPager?.adapter = adapter
         viewPager?.offscreenPageLimit = 3
+
+        viewPager?.setOnPageChangeListener(object:ViewPager.OnPageChangeListener{
+            override fun onPageScrollStateChanged(state: Int) {
+	              return;
+	          }
+	
+	          override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                return;
+            }
+	
+            override fun onPageSelected(position: Int) {
+                onPageChangeListener?.onPageSelected(position);
+	          }
+	
+	      });
+
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         addView(viewPager, layoutParams)
 
@@ -80,12 +97,12 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
         override fun getCount() = urls.size
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-            println("destroyItem")
+            //println("destroyItem")
             container.removeView(images[position])
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            println("instantiateItem")
+            //println("instantiateItem")
             val layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT)
             if (images[position].parent != container)
@@ -95,7 +112,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
         }
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-            println("setPrimaryItem")
+            //println("setPrimaryItem")
             imgLoader?.invoke(urls[position], images[position])
         }
     }
@@ -104,6 +121,8 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     ////////// interface
     //////////////////////////////////////////
 
+    fun getCurPosition() = viewPager?.currentItem
+
     fun setCurrentItem(position: Int){
         viewPager?.currentItem = position
     }
@@ -111,6 +130,10 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
         fun onClick(e: MotionEvent?)
 
         fun onDoubleTap(e: MotionEvent?)
+    }
+    
+    interface OnPageChangeListener{
+        fun onPageSelected(position: Int);
     }
 
 }
