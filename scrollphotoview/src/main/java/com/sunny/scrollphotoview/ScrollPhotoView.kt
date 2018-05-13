@@ -1,4 +1,4 @@
-package hyx.com.album
+package com.sunny.scrollphotoview
 
 import android.content.Context
 import android.support.v4.view.PagerAdapter
