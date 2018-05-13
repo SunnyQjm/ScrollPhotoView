@@ -1,4 +1,4 @@
-package com.sunny.scrollphotoview
+package hyx.com.album
 
 import android.content.Context
 import android.support.v4.view.PagerAdapter
@@ -50,18 +50,18 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
 
         viewPager?.setOnPageChangeListener(object:ViewPager.OnPageChangeListener{
             override fun onPageScrollStateChanged(state: Int) {
-	              return;
-	          }
-	
-	          override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                 return;
             }
-	
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                return;
+            }
+
             override fun onPageSelected(position: Int) {
                 onPageChangeListener?.onPageSelected(position);
-	          }
-	
-	      });
+            }
+
+        });
 
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         addView(viewPager, layoutParams)
@@ -70,6 +70,11 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     fun setUrls(urls: Array<String>) {
+        adapter?.clearUrls()
+        adapter?.addUrls(urls)
+        adapter?.notifyDataSetChanged()
+    }
+    fun addUrls(urls: Array<String>) {
         adapter?.addUrls(urls)
         adapter?.notifyDataSetChanged()
     }
@@ -90,6 +95,9 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
                 this.urls.add(it)
                 images.add(ZoomImageView(context))
             }
+        }
+        fun clearUrls(){
+            urls.clear()
         }
 
         override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
@@ -131,7 +139,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
 
         fun onDoubleTap(e: MotionEvent?)
     }
-    
+
     interface OnPageChangeListener{
         fun onPageSelected(position: Int);
     }
