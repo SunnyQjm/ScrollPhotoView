@@ -93,7 +93,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun initView() {
         mode = mode or MODE_INIT
-        println("initMode: $mode")
+        //println("initMode: $mode")
         mGestureDetector = GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
             /**
              * 检测单击
@@ -138,11 +138,11 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
              * 检测滚动事件，用于拖拽图片
              */
             override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-                println("mode: $mode")
+                //println("mode: $mode")
 
                 //处于缩放状态，并且可拖拽
                 if ((mode and MODE_DRAG > 0) && (mode and MODE_ZOOM > 0)) {
-                    println("drag: ($distanceX, $distanceY)")
+                    //println("drag: ($distanceX, $distanceY)")
                     scaleMatrix.postTranslate(-distanceX * dragDamping, -distanceY * dragDamping)
                     checkBorderAndCenterWhenScale(scaleMatrix)
                     imageMatrix = scaleMatrix
@@ -237,11 +237,11 @@ class ZoomImageView @JvmOverloads constructor(context: Context, attrs: Attribute
         scaleMatrix.postScale(scale, scale, (width / 2.0).toFloat(), (height / 2.0).toFloat())
         imageMatrix = scaleMatrix
         initScale = scale
-        println("initScale: $initScale")
+        //println("initScale: $initScale")
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        println("pointerCount: ${event?.pointerCount}")
+        //println("pointerCount: ${event?.pointerCount}")
         mode = if (event?.pointerCount ?: 0 <= 1)
             mode or MODE_DRAG
         else
