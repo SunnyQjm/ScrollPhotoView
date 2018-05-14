@@ -70,6 +70,10 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     fun setUrls(urls: Array<String>) {
+        adapter?.clearUrls()
+        addUrls(urls)
+    }
+    fun addUrls(urls: Array<String>) {
         adapter?.addUrls(urls)
         adapter?.notifyDataSetChanged()
     }
@@ -85,6 +89,9 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
             }
         }
         var listener: ZoomImageView.OnZoomImageViewClickListener? = null
+        fun clearUrls(){
+            urls.clear()
+        }
         fun addUrls(urls: Array<String>) {
             urls.forEach {
                 this.urls.add(it)
