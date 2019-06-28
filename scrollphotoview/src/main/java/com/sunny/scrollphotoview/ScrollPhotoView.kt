@@ -1,8 +1,8 @@
 package com.sunny.scrollphotoview
 
 import android.content.Context
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -17,7 +17,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
                                                 , defStyleAttr: Int = 0)
     : RelativeLayout(context, attrs, defStyleAttr) {
 
-    private var viewPager: ViewPager? = null
+    private var viewPager: androidx.viewpager.widget.ViewPager? = null
     private var adapter: MyAdapter? = null
 
     var imgLoader: ((url: String, view: ImageView) -> Unit)? = null
@@ -44,11 +44,11 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
                 onScrollPhotoViewClickListener?.onDoubleTap(e)
             }
         }
-        viewPager = ViewPager(context)
+        viewPager = androidx.viewpager.widget.ViewPager(context)
         viewPager?.adapter = adapter
         viewPager?.offscreenPageLimit = 3
 
-        viewPager?.setOnPageChangeListener(object:ViewPager.OnPageChangeListener{
+        viewPager?.setOnPageChangeListener(object: androidx.viewpager.widget.ViewPager.OnPageChangeListener{
             override fun onPageScrollStateChanged(state: Int) {
 	              return;
 	          }
@@ -80,7 +80,7 @@ class ScrollPhotoView @JvmOverloads constructor(context: Context, attrs: Attribu
 
     class MyAdapter(private val context: Context,
                     private val urls: MutableList<String> = mutableListOf(),
-                    var imgLoader: ((url: String, view: ImageView) -> Unit)?) : PagerAdapter() {
+                    var imgLoader: ((url: String, view: ImageView) -> Unit)?) : androidx.viewpager.widget.PagerAdapter() {
         private val images: MutableList<ZoomImageView> = mutableListOf()
 
         init {
