@@ -18,11 +18,19 @@
 	}
 	```
 * Step 2: Add the dependency
-	```gradle
-	dependencies {
-	        implementation 'com.github.SunnyQjm:ScrollPhotoView:1.1.2'
-	}
-	```
+	本组件库已经迁移到AndroidX，如果项目中使用了AndroidX库，请使用版本>=1.2
+	- support 库项目
+		```gradle
+		dependencies {
+			implementation 'com.github.SunnyQjm:ScrollPhotoView:1.1.2'
+		}
+		```
+	- AndroidX 项目
+		```gradle
+		dependencies {
+			implementation 'com.github.SunnyQjm:ScrollPhotoView:1.2'
+		}
+		```
 
 * Step 3 : 在布局中使用
     ```xml
